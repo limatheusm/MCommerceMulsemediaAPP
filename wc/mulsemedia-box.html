@@ -1,21 +1,20 @@
 <template>
     <!-- Style -->
+    <link rel="stylesheet" href="css/bootstrap.min.css">
     <style>
     .effect-box {
         padding: 2px;
         margin-top: 12px;
-        margin-bottom: 30px;
-        color: #c8c8c8;
+        color: rgba(102, 102, 102, 0.5);
         border: 1px solid rgba(102, 102, 102, 0.5);
         background-color:rgba(0, 0, 0, 0);
-    }     
+    }    
     .intensity {
         font-family: "Times New Roman", Times, serif;
         font-size: 20px;
         color: #ff4411;
     }
-    </style>
-    <link rel="stylesheet" href="css/bootstrap.min.css">
+    </style>        
     <!-- Box Effects -->
     <!-- <div class="container"> -->
         <div class="row">                
@@ -39,11 +38,13 @@
                 <div class="col-xs-2 effect-box text-center">
                     Temp Effect<br> <span id="intensity-temperature" class="intensity">-</span>
                 </div>
-
                 <div class="col-xs-2 effect-box text-center">
                     Water Spray <br> <span id="intensity-water-spray" class="intensity">-</span>
                 </div>
-            </div>
+                <div class="col-xs-12 effect-box text-center">
+                    Scent <br> <span id="intensity-scent" class="intensity">-</span>
+                </div>  
+            </div>  
         </div> 
     <!-- </div>   -->
 
@@ -58,7 +59,7 @@
             
             //Get the contents of the template (Polyfill use _currentScript)
             var template = thisDocument.querySelector('template');            
-            var shadowRoot;
+            var shadowRoot = [];
             
             //Create a prototype for this component
             var vibrationEffect = Object.create(HTMLElement.prototype);
@@ -67,6 +68,7 @@
             var fogEffect = Object.create(HTMLElement.prototype);
             var temperatureEffect = Object.create(HTMLElement.prototype);
             var waterSpray = Object.create(HTMLElement.prototype);
+            var scentEffect = Object.create(HTMLElement.prototype);
             var mulsemediaBox = Object.create(HTMLElement.prototype);
 
             /*BOX EFFECTS*/
@@ -76,12 +78,14 @@
                 var clone = document.importNode(template.content, true);
                 //Add the template contents to the Shadow DOM                
                 this.createShadowRoot().appendChild(clone);
-                shadowRoot = this.shadowRoot;
+                shadowRoot.push(this.shadowRoot);
+                //console.log(this.shadowRoot);
             };
 
             /*List of the media*/
-            var listMedia = document.querySelectorAll('audio, video, img');       
+            var listMedia = document.querySelectorAll('audio, video, img, mulsemedia-box');
 
+            /*Object Media representa a midia que contem efeitos MS*/
             var Media = function (element, list_effects) {
                 if (element) this.element = element;
                 if (list_effects) this.list_effects = list_effects;
@@ -89,18 +93,29 @@
 
             Media.prototype.syncTime = function (video, effect){
                 //get spans from shadowRoot
-                var textIntensity = shadowRoot.getElementById('intensity-'+effect.type);  
+                var thisShadowRoot = effect.parentNode.shadowRoot;
+                var textIntensity = thisShadowRoot.getElementById('intensity-'+effect.type);
                 var currentTime = video.currentTime;
                 var duration = (effect.endTime - video.currentTime) * 1000;
                 var withinBounds = (currentTime >= effect.startTime) && (currentTime < effect.endTime);
-                
 
+                if (!isNaN(effect.fade) && effect.executing){
+                    
+                    effect.fadeIntensity += effect.fade;
+                    textIntensity.innerHTML = (effect.type === 'scent') 
+                                            ? effect.type_scent + " with " + (effect.fadeIntensity.toFixed(2)) + " intensity" 
+                                            : (effect.fadeIntensity.toFixed(2));
+                }
 
-                if(!video.paused){
-                    if(withinBounds && !effect.executing){
-                        //console.log("effect "+effect.type+" with "+effect.intensity+" intensity started - "+video.getAttribute('src'));                        
+                if (!video.paused){
+                    if (withinBounds && !effect.executing){
+                        
                         if (effect.type === 'vibration') vibrate(duration);
-                        textIntensity.innerHTML = effect.intensity;
+
+                        textIntensity.innerHTML = (effect.type === 'scent') 
+                                                ? effect.type_scent + " with " + effect.intensity + " intensity" 
+                                                : effect.intensity;
+                        
                         effect.executing = true;
                     }
 
@@ -108,6 +123,7 @@
                         //console.log("effect "+effect.type+" with "+effect.intensity+" intensity finished");
                         effect.executing = false;
                         textIntensity.innerHTML = '-';
+                        effect.fadeIntensity = effect.intensity; //zera fading
                         if (effect.type === 'vibration') vibrate(0);
                     }
 
@@ -115,6 +131,7 @@
                         //console.log("effect "+effect.type+" with "+effect.intensity+" intensity stoped");
                         effect.executing = false;
                         textIntensity.innerHTML = '-';
+                        effect.fadeIntensity = effect.intensity; //zera fading
                         if (effect.type === 'vibration') vibrate(0);
                     }
                 }
@@ -132,27 +149,76 @@
                 var list = this.list_effects;
                 var element = this.element;
 
-                console.log(length);
+                //console.log(length);
 
-                if (element.tagName === 'VIDEO'){                    
+                if (element.tagName === 'VIDEO'){            
                     element.addEventListener("timeupdate", function () {               
                        for (var i = 0; i < length; i++) { 
                            media.syncTime(element, list[i]);//
                        }
                     }, false);
                 }
-                else if (element.tagName === 'IMG'){
-                    /*console.log($('img').siblings());*/
+                else if (element.tagName === 'MULSEMEDIA-BOX'){
+                    var idBindVideo = "#"+element.id.split("-")[1];
+                    element = document.querySelector(idBindVideo);
+                    if (element) {//caso seja video
+                        element.addEventListener("timeupdate", function () {
+                           for (var i = 0; i < length; i++) { 
+                               media.syncTime(element, list[i]);//
+                           }
+                        }, false);
+                    }                    
                 }
                 
             };
 
-            function runEffect(type, intensity, duration) {
+            window.runEffect = function (effect) {
+                //var duration = effect.duration * 1000;
+                var duration = (effect.endTime - effect.startTime) * 1000;
+                var thisShadowRoot = effect.parentNode.shadowRoot;
+                var textIntensity = thisShadowRoot.getElementById('intensity-'+effect.type);
+                var timer;
+
+                setTimeout(function () {
+                    // StartEffect
+                    effect.executing = true;
+                    console.log('running '+effect.type);
+                    if (effect.type === 'vibration') vibrate(duration);
+                    if (!isNaN(effect.fade)){
+                        
+                        timer = setInterval(function () {
+                            effect.fadeIntensity += effect.fade;
+                            textIntensity.innerHTML = (effect.type === 'scent') 
+                                                    ? effect.type_scent + " with " + (effect.fadeIntensity.toFixed(2)) + " intensity" 
+                                                    : (effect.fadeIntensity.toFixed(2));
+                        },250);                    
+                    }
+                    else {
+                        textIntensity.innerHTML = (effect.type === 'scent') 
+                            ? effect.type_scent + " with " + effect.intensity + " intensity" 
+                            : effect.intensity;
+                    }
+                    
+                },  effect.startTime*1000);
+
+                if (!(effect.endTime === 'infinite')){
+                    setTimeout(function () {
+                        //Finish Effect
+                        effect.executing = false;
+                        effect.fadeIntensity = effect.intensity;
+                        clearInterval(timer);
+                        console.log('finished '+effect.type);
+                        textIntensity.innerHTML = '-';
+                    },  effect.endTime*1000);
+                }                
+            }
+
+            /*window.runEffect = function (type, intensity, duration) {
                 duration *= 1000;
-                $('body').append("<div class='float-box'>"+type+" with "+intensity+"</div>");
+                $('body').append("<div class='col-xs-4 float-box'>"+type+" with "+intensity+"</div>");
 
                 setTimeout(function(){ $("div").remove(".float-box"); console.log('done');}, duration);
-            }
+            }*/
 
             for (var i = 0; i < listMedia.length; i++){                
                 new Media(listMedia[i], getAllSiblings(listMedia[i])).startTimerListener();
@@ -166,22 +232,18 @@
             vibrationEffect.type = "vibration";
             vibrationEffect.intensity = 0;
             vibrationEffect.startTime = 0;
-            vibrationEffect.endTime = 0;
+            vibrationEffect.endTime = 0;            
             vibrationEffect.executing = false;
 
             //Register a createdCallback
             vibrationEffect.createdCallback = function() {
-                //console.log('an instance of the Vibration is created ');
-                //Grab the contents of the template
-                //shadowRoot = this.createShadowRoot();
-                //var clone = document.importNode(template.content, true);
-                //Add the template contents to the Shadow DOM
-                //shadowRoot.appendChild(clone);
 
                 //Get Tag Attributes
-                this.intensity = this.getAttribute('intensity');
+                this.intensity = parseFloat(this.getAttribute('intensity'));
                 this.startTime = this.getAttribute('startTime');
-                this.endTime = this.getAttribute('endTime');  
+                this.endTime = this.getAttribute('endTime');                
+                this.fade = parseFloat(this.getAttribute('fade')); 
+                this.fadeIntensity = parseFloat(this.intensity); 
             };
             
             /*** WIND EFFECT ***/ 
@@ -195,17 +257,13 @@
 
             //Register a createdCallback
             windEffect.createdCallback = function() {
-                //console.log('an instance of the wind is created ');
-                //Grab the contents of the template
-                //shadowRoot = this.createShadowRoot();
-                //var clone = document.importNode(template.content, true);
-                //Add the template contents to the Shadow DOM
-                //shadowRoot.appendChild(clone);
-
+                
                 //Get Tag Attributes
-                this.intensity = this.getAttribute('intensity');
+                this.intensity = parseFloat(this.getAttribute('intensity'));
                 this.startTime = this.getAttribute('startTime');
-                this.endTime = this.getAttribute('endTime');  
+                this.endTime = this.getAttribute('endTime');                
+                this.fade = parseFloat(this.getAttribute('fade')); 
+                this.fadeIntensity = parseFloat(this.intensity);
             };
 
             /*** Light EFFECT ***/ 
@@ -219,17 +277,13 @@
 
             //Register a createdCallback
             lightEffect.createdCallback = function() {
-                //console.log('an instance of the light is created ');
-                //Grab the contents of the template
-                //shadowRoot = this.createShadowRoot();
-                //var clone = document.importNode(template.content, true);
-                //Add the template contents to the Shadow DOM
-                //shadowRoot.appendChild(clone);
 
-                //Get Tag Attributes
-                this.intensity = this.getAttribute('intensity');
+                ///Get Tag Attributes
+                this.intensity = parseFloat(this.getAttribute('intensity'));
                 this.startTime = this.getAttribute('startTime');
-                this.endTime = this.getAttribute('endTime');  
+                this.endTime = this.getAttribute('endTime');                
+                this.fade = parseFloat(this.getAttribute('fade')); 
+                this.fadeIntensity = parseFloat(this.intensity);
             };
 
             /*** Fog EFFECT ***/ 
@@ -243,17 +297,13 @@
 
             //Register a createdCallback
             fogEffect.createdCallback = function() {
-                //console.log('an instance of the fog is created ');
-                //Grab the contents of the template
-                //shadowRoot = this.createShadowRoot();
-                //var clone = document.importNode(template.content, true);
-                //Add the template contents to the Shadow DOM
-                //shadowRoot.appendChild(clone);
 
                 //Get Tag Attributes
-                this.intensity = this.getAttribute('intensity');
+                this.intensity = parseFloat(this.getAttribute('intensity'));
                 this.startTime = this.getAttribute('startTime');
-                this.endTime = this.getAttribute('endTime');  
+                this.endTime = this.getAttribute('endTime');                
+                this.fade = parseFloat(this.getAttribute('fade')); 
+                this.fadeIntensity = parseFloat(this.intensity);
             };
 
             /*** Temperature EFFECT ***/ 
@@ -264,20 +314,17 @@
             temperatureEffect.startTime = 0;
             temperatureEffect.endTime = 0;
             temperatureEffect.executing = false;
+            //temperatureEffect.fade = false;
 
             //Register a createdCallback
             temperatureEffect.createdCallback = function() {
-                //console.log('an instance of the temperature is created ');
-                //Grab the contents of the template
-                //shadowRoot = this.createShadowRoot();
-                //var clone = document.importNode(template.content, true);
-                //Add the template contents to the Shadow DOM
-                //shadowRoot.appendChild(clone);
 
                 //Get Tag Attributes
-                this.intensity = this.getAttribute('intensity');
+                this.intensity = parseFloat(this.getAttribute('intensity'));
                 this.startTime = this.getAttribute('startTime');
-                this.endTime = this.getAttribute('endTime');  
+                this.endTime = this.getAttribute('endTime');                
+                this.fade = parseFloat(this.getAttribute('fade')); 
+                this.fadeIntensity = parseFloat(this.intensity);
             };
 
             /* WATER SPRAY */
@@ -290,19 +337,33 @@
 
             //Register a createdCallback
             waterSpray.createdCallback = function() {
-                //console.log('an instance of the wind is created ');
-                //Grab the contents of the template
-                //shadowRoot = this.createShadowRoot();
-                //var clone = document.importNode(template.content, true);
-                //Add the template contents to the Shadow DOM
-                //shadowRoot.appendChild(clone);
-
                 //Get Tag Attributes
-                this.intensity = this.getAttribute('intensity');
+                this.intensity = parseFloat(this.getAttribute('intensity'));
                 this.startTime = this.getAttribute('startTime');
-                this.endTime = this.getAttribute('endTime');  
+                this.endTime = this.getAttribute('endTime');                
+                this.fade = parseFloat(this.getAttribute('fade')); 
+                this.fadeIntensity = parseFloat(this.intensity);
             };
 
+            /* SCENT EFFECT */
+            //Propertys
+            scentEffect.type = "scent";
+            scentEffect.intensity = 0;
+            scentEffect.startTime = 0;
+            scentEffect.endTime = 0;
+            scentEffect.executing = false;
+
+            //Register a createdCallback
+            scentEffect.createdCallback = function() {
+                
+                //Get Tag Attributes
+                this.intensity = parseFloat(this.getAttribute('intensity'));
+                this.startTime = this.getAttribute('startTime');
+                this.endTime = this.getAttribute('endTime');                
+                this.fade = parseFloat(this.getAttribute('fade')); 
+                this.fadeIntensity = parseFloat(this.intensity);
+                this.type_scent = this.getAttribute('type_scent');
+            };
 
             /*** Register the elements with the document (thatDoc) ***/
             document.registerElement('vibration-effect', {prototype: vibrationEffect});
@@ -311,6 +372,7 @@
             document.registerElement('fog-effect', {prototype: fogEffect});
             document.registerElement('temperature-effect', {prototype: temperatureEffect});
             document.registerElement('water-spray', {prototype: waterSpray});
+            document.registerElement('scent-effect', {prototype: scentEffect});
             document.registerElement('mulsemedia-box', {prototype: mulsemediaBox});
 
             /*** support functions ***/
@@ -323,9 +385,9 @@
             //this will start from the first child of the current element's and get all the siblings
             function getAllSiblings(elem, filter) {
                 var sibs = [];           
-                var patt = new RegExp("WATER-SPRAY|((VIBRATION|WIND|TEMPERATURE|FOG|LIGHT)-EFFECT$)");                     
+                var patt = new RegExp("WATER-SPRAY|((VIBRATION|WIND|TEMPERATURE|FOG|LIGHT|SCENT)-EFFECT$)");                     
                 /*Video -> childrens  /  img -> siblings*/
-                if (elem.tagName === 'VIDEO'){
+                if (elem.tagName === 'VIDEO' || elem.tagName === 'MULSEMEDIA-BOX'){
                     elem = elem.firstChild; 
                 }                              
                                                 
@@ -337,17 +399,6 @@
                 }                
                 return sibs;
             }           
-
-            /*Image Effect*/            
-            $('#effect').on('click', function () {
-                /*runEffect('cheirin de sal', 50, 3);*/
-                var animation = 'animated pulse';
-                var animationend = 'webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend';
-                $('img').addClass(animation).one(animationend, function () {
-                    $(this).removeClass(animation);
-                });
-            });
-
 
         }());
 
