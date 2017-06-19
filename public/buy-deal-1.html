@@ -6,9 +6,6 @@
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="css/style.css">
     <link rel="import" href="wc/mulsemedia-box.html">
-    <script src="js/socket.io.min.js"></script>
-    <script src="js/jquery.min.js"></script>
-    <script src="js/bootstrap.min.js"></script>
     <title>Deals</title>
 </head>
 
@@ -91,6 +88,15 @@
                   <conditional-effect service="dealService" in="cardnumber" ifReturn="1">
                     <vibration-effect intensity="50.0" startTime="1" endTime="5" fade="0.5"></vibration-effect>
                   </conditional-effect>
+                  <conditional-effect service="dealService" in="cardnumber" ifReturn="0">
+                    <temperature-effect intensity="50.0" startTime="1" endTime="5" fade="0.5"></temperature-effect>
+                  </conditional-effect>
+                </mulsemedia-box>
+
+                <mulsemedia-box idBind="" onClickStart="buy">
+                  <conditional-effect service="dealService" in="cardnumber" ifReturn="1">
+                    <water-spray intensity="50.0" startTime="1" endTime="5" fade="0.5"></water-spray>
+                  </conditional-effect>
                 </mulsemedia-box>
             </div>
 
@@ -114,7 +120,7 @@
 </body>
 
 <script>
-    $(function () {
+    //$(function () {
 
         // $('#buy').click(function () {
         //     var effectsHTML = "";
@@ -198,8 +204,10 @@
         //     }
         // });
 
-    });
+    //});
 </script>
-
+<script src="js/socket.io.min.js"></script>
+<script src="js/jquery.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
 
 </html>

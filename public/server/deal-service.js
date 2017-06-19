@@ -9,6 +9,7 @@ io.on('connection', function(socket){
 
 	socket.on('validateCard', function(card){
     // Avalia se o cartao eh valido
+		
     io.emit('resultValidation', validateCard(card));
 	});
 
@@ -27,7 +28,7 @@ http.listen(3030, function(){
 	console.log('Start Server on Port: 3030');
 });
 
-/////////// HELP FUNTIONS /////////////////
+/////////// HELP FUNCTIONS /////////////////
 
 /* Retorna 1 caso seja aceito ou 0 caso seja rejeitado */
 function validateCard(numCard) {
