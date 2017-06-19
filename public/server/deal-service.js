@@ -9,7 +9,7 @@ io.on('connection', function(socket){
 
 	socket.on('validateCard', function(card){
     // Avalia se o cartao eh valido
-		
+
     io.emit('resultValidation', validateCard(card));
 	});
 
@@ -17,7 +17,7 @@ io.on('connection', function(socket){
 	   console.log('user disconnected...');
 	});
 
-  socket.on('end', function (){
+  socket.on('end', function (){		
     socket.disconnect(0);
   });
 

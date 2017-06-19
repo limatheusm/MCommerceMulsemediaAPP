@@ -430,8 +430,6 @@
             }
 
             MulsemediaBox.prototype.verifyConditionalEffect = function () {
-
-               var answer = ['1','4','4','4','3'];
                var mulsemediaBox = this;
                var listService = [];
                var conditionalClass = [];
@@ -450,9 +448,9 @@
                if (this.element.onClickStart) {
                  $('#'+this.element.onClickStart).click(function () {
                      if (conditionalClass.length) {
-                       var socket = io('http://localhost:3000');
+                       var socket = io.connect('http://localhost:3000');
                        $.each(conditionalClass, function () {
-                         connectClassService(socket, 'getResult', answer, conditionalClass);
+                         connectClassService(socket, 'getResult', $('#'+this.in).val(), this);
                        });
                      }
 
@@ -465,11 +463,11 @@
                  });
                }
                else { // start consulta ao servico ao renderizar
-
+                 console.log('a');
                  if (conditionalClass.length) {
-                   var socket = io('http://localhost:3000');
+                   var socket = io.connect('http://localhost:3000');
                    $.each(conditionalClass, function () {
-                     connectClassService(socket, 'getResult', answer, conditionalClass);
+                     connectClassService(socket, 'getResult', $('#'+this.in).val(), this);
                    });
                  }
 
@@ -483,6 +481,7 @@
 
                //  Quando receber uma resposta do servidor, captura o evento
                $(conditionalClass).on("responseClassService", function (event, response) {
+                 console.log(response);
                  if (computeCondition(response, parseFloat(this.ifReturn), this.op)) {
                    console.log('Accepted condition!');
                    if (mulsemediaBox.element.onClickStart) {
@@ -547,13 +546,14 @@
               // Returned of the server
 
               socket.on('results', function(results){
+                  socket.disconnect();
+                  console.log("desconectado!");
                   var percentualResult = 0;
                   for (var i = 0; i < results.length; i++) {
                     if (results[i]) {
                       percentualResult += (100 / results.length);
                     }
                   }
-                  socket.disconnect();
                   // Quando receber resposta do servidor, dispara um evento
                   $(element).trigger("responseClassService", [percentualResult]);
 
