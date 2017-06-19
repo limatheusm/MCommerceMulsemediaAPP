@@ -85,16 +85,16 @@
                 <button type="button" class="btn btn-custom btn-block" onclick="location.href='deal-picture-1.html';">back</button>
 
                 <mulsemedia-box idBind="" onClickStart="buy">
-                  <conditional-effect service="dealService" in="cardnumber" ifReturn="1">
+                  <conditional-effect service="dealService" in="cardnumber" ifReturn="1" op="=">
                     <vibration-effect intensity="50.0" startTime="1" endTime="5" fade="0.5"></vibration-effect>
                   </conditional-effect>
-                  <conditional-effect service="dealService" in="cardnumber" ifReturn="0">
+                  <conditional-effect service="dealService" in="cardnumber" ifReturn="0" op='='>
                     <temperature-effect intensity="50.0" startTime="1" endTime="5" fade="0.5"></temperature-effect>
                   </conditional-effect>
                 </mulsemedia-box>
 
                 <mulsemedia-box idBind="" onClickStart="buy">
-                  <conditional-effect service="dealService" in="cardnumber" ifReturn="1">
+                  <conditional-effect service="dealService" in="cardnumber" ifReturn="1" op='!='>
                     <water-spray intensity="50.0" startTime="1" endTime="5" fade="0.5"></water-spray>
                   </conditional-effect>
                 </mulsemedia-box>

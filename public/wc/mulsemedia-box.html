@@ -232,6 +232,7 @@
               this.service = this.getAttribute('service');
               this.ifReturn = this.getAttribute('ifReturn');
               this.in = this.getAttribute('in');
+              this.op = this.getAttribute('op');
 
             };
 
@@ -257,61 +258,13 @@
                 if (conditional_effects) this.conditional_effects = conditional_effects;
             };
 
-            MulsemediaBox.prototype.syncTime = function (video, effect){
-                //get spans from shadowRoot
-                var thisShadowRoot = effect.parentNode.shadowRoot;
-                var textIntensity = thisShadowRoot.getElementById('intensity-'+effect.type);
-                var currentTime = video.currentTime;
-                var duration = (effect.endTime - video.currentTime) * 1000;
-                var withinBounds = (currentTime >= effect.startTime) && (currentTime < effect.endTime);
-
-                if (!isNaN(effect.fade) && effect.executing){
-
-                    effect.fadeIntensity += effect.fade;
-                    textIntensity.innerHTML = (effect.type === 'scent')
-                                            ? effect.type_scent + " with " + (effect.fadeIntensity.toFixed(2)) + " intensity"
-                                            : (effect.fadeIntensity.toFixed(2));
-                }
-
-                if (!video.paused){
-                    if (withinBounds && !effect.executing){
-
-                        if (effect.type === 'vibration') vibrate(duration);
-
-                        textIntensity.innerHTML = (effect.type === 'scent')
-                                                ? effect.type_scent + " with " + effect.intensity + " intensity"
-                                                : effect.intensity;
-
-                        effect.executing = true;
-                    }
-
-                    if(currentTime >= effect.endTime && effect.executing){
-                        //console.log("effect "+effect.type+" with "+effect.intensity+" intensity finished");
-                        effect.executing = false;
-                        textIntensity.innerHTML = '-';
-                        effect.fadeIntensity = effect.intensity; //zera fading
-                        if (effect.type === 'vibration') vibrate(0);
-                    }
-
-                    if(currentTime <= effect.startTime && effect.executing){
-                        //console.log("effect "+effect.type+" with "+effect.intensity+" intensity stoped");
-                        effect.executing = false;
-                        textIntensity.innerHTML = '-';
-                        effect.fadeIntensity = effect.intensity; //zera fading
-                        if (effect.type === 'vibration') vibrate(0);
-                    }
-                }
-                else if(video.paused && effect.executing){
-                    //console.log("effect "+effect.type+" with "+effect.intensity+" intensity paused");
-                    effect.executing = false;
-                    textIntensity.innerHTML = '-';
-                    if (effect.type === 'vibration') vibrate(0);
-                }
-            };
-
             /*
+            startTimerListener():
               Funcao que verifica qual tipo de midia e seus atributos
-              e Starta o time adequado
+              e Starta o time adequado. Ela pode chamar:
+                syncTime() -> Caso a midia seja video/audio, para
+                                        sincronizar com a timeline
+                runEffect() -> Caso a midia seja imagem/texto/...
             */
             MulsemediaBox.prototype.startTimerListener = function(list) {
                 var length = this.list_effects.length;
@@ -379,6 +332,58 @@
                     }
 
                   }
+            };
+
+            MulsemediaBox.prototype.syncTime = function (video, effect){
+                //get spans from shadowRoot
+                var thisShadowRoot = effect.parentNode.shadowRoot;
+                var textIntensity = thisShadowRoot.getElementById('intensity-'+effect.type);
+                var currentTime = video.currentTime;
+                var duration = (effect.endTime - video.currentTime) * 1000;
+                var withinBounds = (currentTime >= effect.startTime) && (currentTime < effect.endTime);
+
+                if (!isNaN(effect.fade) && effect.executing){
+
+                    effect.fadeIntensity += effect.fade;
+                    textIntensity.innerHTML = (effect.type === 'scent')
+                                            ? effect.type_scent + " with " + (effect.fadeIntensity.toFixed(2)) + " intensity"
+                                            : (effect.fadeIntensity.toFixed(2));
+                }
+
+                if (!video.paused){
+                    if (withinBounds && !effect.executing){
+
+                        if (effect.type === 'vibration') vibrate(duration);
+
+                        textIntensity.innerHTML = (effect.type === 'scent')
+                                                ? effect.type_scent + " with " + effect.intensity + " intensity"
+                                                : effect.intensity;
+
+                        effect.executing = true;
+                    }
+
+                    if(currentTime >= effect.endTime && effect.executing){
+                        //console.log("effect "+effect.type+" with "+effect.intensity+" intensity finished");
+                        effect.executing = false;
+                        textIntensity.innerHTML = '-';
+                        effect.fadeIntensity = effect.intensity; //zera fading
+                        if (effect.type === 'vibration') vibrate(0);
+                    }
+
+                    if(currentTime <= effect.startTime && effect.executing){
+                        //console.log("effect "+effect.type+" with "+effect.intensity+" intensity stoped");
+                        effect.executing = false;
+                        textIntensity.innerHTML = '-';
+                        effect.fadeIntensity = effect.intensity; //zera fading
+                        if (effect.type === 'vibration') vibrate(0);
+                    }
+                }
+                else if(video.paused && effect.executing){
+                    //console.log("effect "+effect.type+" with "+effect.intensity+" intensity paused");
+                    effect.executing = false;
+                    textIntensity.innerHTML = '-';
+                    if (effect.type === 'vibration') vibrate(0);
+                }
             };
 
             MulsemediaBox.prototype.runEffect = function (effect) {
@@ -478,7 +483,7 @@
 
                //  Quando receber uma resposta do servidor, captura o evento
                $(conditionalClass).on("responseClassService", function (event, response) {
-                 if (parseFloat(this.ifReturn) === response) {
+                 if (computeCondition(response, parseFloat(this.ifReturn), this.op)) {
                    console.log('Accepted condition!');
                    if (mulsemediaBox.element.onClickStart) {
                      $(this).children().each(function () {
@@ -496,7 +501,7 @@
 
                $(conditionalDeal).on("responseDealService", function (event, response) {
                  //console.log(this);
-                 if (parseFloat(this.ifReturn) === response) {
+                 if (computeCondition(response, parseFloat(this.ifReturn), this.op)) {
                    console.log('Accepted condition!');
                    if (mulsemediaBox.element.onClickStart) { //evitar dois cliques
                      $(this).children().each(function () {
@@ -573,6 +578,25 @@
             function vibrate(duration) {
                 if(!(window.navigator.vibrate(duration)))
                     console.log('Not supported by browser');
+            }
+
+            function computeCondition(nServe, nCondition, op) {
+              switch (op) {
+                case '=':
+                  return (nServe === nCondition);
+                case '>':
+                  return (nServe > nCondition);
+                case '<':
+                  return (nServe < nCondition);
+                case '>=':
+                  return (nServe >= nCondition);
+                case '<=':
+                  return (nServe <= nCondition);
+                case '!=':
+                  return (nServe !== nCondition);
+                default:
+                  return null;
+              }
             }
 
 
