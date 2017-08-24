@@ -82,22 +82,23 @@
 
                 <hr>
                 <button type="button" id="buy" class="btn btn-custom btn-block" >buy now!</button>
+                <button type="button" class="btn btn-custom btn-block" onclick="location.href='index.html';">home</button>
                 <button type="button" class="btn btn-custom btn-block" onclick="location.href='deal-picture-1.html';">back</button>
 
                 <mulsemedia-box idBind="" onClickStart="buy">
                   <conditional-effect service="dealService" in="cardnumber" ifReturn="1" op="=">
                     <vibration-effect intensity="50.0" startTime="1" endTime="5" fade="0.5"></vibration-effect>
                   </conditional-effect>
-                  <conditional-effect service="dealService" in="cardnumber" ifReturn="0" op='>'>
+                  <conditional-effect service="dealService" in="cardnumber" ifReturn="0" op='='>
                     <temperature-effect intensity="50.0" startTime="1" endTime="5" fade="0.5"></temperature-effect>
                   </conditional-effect>
                 </mulsemedia-box>
 
-                <mulsemedia-box idBind="" onClickStart="buy">
-                  <conditional-effect service="dealService" in="cardnumber" ifReturn="1" op='='>
+                <!-- <mulsemedia-box idBind="" onClickStart="buy">
+                  <conditional-effect service="dealService" in="cardnumber" ifReturn="0" op='='>
                     <water-spray intensity="50.0" startTime="1" endTime="5" fade="0.5"></water-spray>
                   </conditional-effect>
-                </mulsemedia-box>
+                </mulsemedia-box> -->
             </div>
 
         </div><!-- /.container -->
@@ -118,8 +119,18 @@
     </footer>
 
 </body>
-
+<script src="js/socket.io.min.js"></script>
+<script src="js/jquery.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
 <script>
+    $(function () {
+        var cardNumber = $('#cardnumber').val();
+        $('#buy').click(function () {
+            if (cardNumber.length != 12) {
+                alert('Card number must contain 12 digits!');
+            } 
+        });
+    });
     //$(function () {
 
         // $('#buy').click(function () {
@@ -206,8 +217,4 @@
 
     //});
 </script>
-<script src="js/socket.io.min.js"></script>
-<script src="js/jquery.min.js"></script>
-<script src="js/bootstrap.min.js"></script>
-
 </html>
