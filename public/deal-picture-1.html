@@ -13,8 +13,8 @@
 </head>
 
 <body>
-
-	<!-- Navigation -->
+    
+    <!-- Navigation -->
     <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
         <div class="container">
             <!-- Brand and toggle get grouped for better mobile display -->
@@ -42,58 +42,66 @@
         </div>
         <!-- /.container -->
     </nav>
-
+    
     <header>
         <h1 class="page-header">Deal 1 Picture</h1>
     </header><!-- /header -->
-
+    
     <!-- Page Content -->
     <section>
-      <div class="container">
-			  <div class="row">
-			    <div class="col-xs-12">
-            <img id="img1" class="img-responsive center-block" src="img/logan2.jpg">
+        <div class="container">
+            <div class="row">
+                <div class="col-xs-12">
+                    <img id="img1" class="img-responsive center-block" src="img/logan2.jpg">
+                    
+                    <mulsemedia-box idBind="img1" onClickStart="effect">
+                        <scent-effect intensity="50.0" startTime="0" endTime="3" type_scent="Blood"></scent-effect>
+                    </mulsemedia-box>
+                </div>
+            </div>
+            <button type="button" class="btn btn-custom btn-block" id="effect">
+                Would you like to scent this?
+            </button>
+            <script>
+                $(function () {
+                    var element = this.getElementsByTagName('mulsemedia-box');
+                    var effects = $(element).children();
+                    /*Image Effect*/
+                    $('#effect').on('click', function () {
+                        /*RUn effects*/
+                        var animation = 'animated pulse';
+                        var animationend = 'webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend';
+                        $('img').addClass(animation).one(animationend, function () {
+                            $(this).removeClass(animation);
+                        });
+                    });
+                });
+            </script>
             
-            <mulsemedia-box idBind="img1" onClickStart="effect">
-              <scent-effect intensity="50.0" startTime="0" endTime="3" type_scent="Blood"></scent-effect>
-            </mulsemedia-box>
-          </div>
-			  </div>
-			  <button type="button" class="btn btn-custom btn-block" id="effect">
-					Would you like to scent this?
-			  </button>
-        <script>
-            $(function () {
-              var element = this.getElementsByTagName('mulsemedia-box');
-              var effects = $(element).children();
-              /*Image Effect*/
-              $('#effect').on('click', function () {
-                 /*RUn effects*/
-                 var animation = 'animated pulse';
-                 var animationend = 'webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend';
-                 $('img').addClass(animation).one(animationend, function () {
-                   $(this).removeClass(animation);
-                 });
-              });
-            });
-        </script>
-
-			  <div class="row">
-				  <div class="col-xs-12">
-            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus nec lorem vitae ante viverra laoreet. Donec sed nibh tincidunt ante interdum volutpat vitae vel sapien. Sed ac justo justo. Fusce tristique sed lorem eget malesuada. In porta dolor vitae lectus ornare, tempus fringilla libero dapibus. Morbi iaculis libero et nulla tempus, eu aliquam erat rutrum. Donec fermentum magna volutpat, interdum felis quis, tempor massa. Vestibulum tempus neque vel rutrum sodales.</p>
-          </div>
-			  </div>
-
-        <button type="button" class="btn btn-custom btn-block" onclick="location.href='buy-deal-1.html';">buy deal</button>
-        <!-- Opcional -->
-        <button type="button" class="btn btn-custom btn-block" onclick="location.href='deal-video-1.html';">show video</button>
-
-      </div><!-- /.container -->
-
+            <div class="row">
+                <div class="col-xs-12">
+                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
+                       Phasellus nec lorem vitae ante viverra laoreet. Donec sed 
+                       nibh tincidunt ante interdum volutpat vitae vel sapien. 
+                       Sed ac justo justo. Fusce tristique sed lorem eget malesuada. 
+                       In porta dolor vitae lectus ornare, tempus fringilla libero dapibus. 
+                       Morbi iaculis libero et nulla tempus, eu aliquam erat rutrum. Donec 
+                       fermentum magna volutpat, interdum felis quis, tempor massa. Vestibulum 
+                       tempus neque vel rutrum sodales.
+                    </p>
+                </div>
+            </div>
+            
+            <button type="button" class="btn btn-custom btn-block" onclick="location.href='buy-deal-1.html';">buy deal</button>
+            <!-- Opcional -->
+            <button type="button" class="btn btn-custom btn-block" onclick="location.href='deal-video-1.html';">show video</button>
+            
+        </div><!-- /.container -->
+        
     </section>
-
+    
     <hr>
-
+    
     <!-- Footer -->
     <footer>
         <div class="container">
@@ -104,5 +112,6 @@
             </div>
         </div>
     </footer>
-
-</html>
+    
+    </html>
+    

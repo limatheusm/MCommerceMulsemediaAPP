@@ -76,7 +76,8 @@
                     </label>
                     <div class="input-group">
                         <span class="input-group-addon">Card Number</span>
-                        <input id="cardnumber" type="text" class="form-control" name="cardnumber" placeholder="Ex: 999999999990">
+                        <input id="cardnumber" type="text" class="form-control" 
+                               name="cardnumber" placeholder="Ex: 999999999990">
                     </div>
                 </form>
 
@@ -121,100 +122,25 @@
 </body>
 <script src="js/socket.io.min.js"></script>
 <script src="js/jquery.min.js"></script>
+<script src="js/jquery.mask.js"></script>
 <script src="js/bootstrap.min.js"></script>
 <script>
     $(function () {
-        var cardNumber = $('#cardnumber').val();
-        $('#buy').click(function () {
-            if (cardNumber.length != 12) {
-                alert('Card number must contain 12 digits!');
+
+        $('[name=cardnumber]').mask('000000000000');
+        //$('#cardnumber').val('000000000001')
+        var cardNumber = $('#cardnumber');
+        var buy = $('#buy');
+
+        $(buy).prop("disabled", true);
+        $(cardNumber).on("propertychange change click keyup input paste", function() {
+            if ($(this).val().length != 12) {
+                $(buy).prop("disabled", true);
+            }
+            else {
+                $(buy).prop("disabled", false);
             } 
         });
     });
-    //$(function () {
-
-        // $('#buy').click(function () {
-        //     var effectsHTML = "";
-        //     var effects;
-        //     var box = $('#box-here');
-        //
-        //     //var cardNumber = parseInt($('#cardnumber').val());
-        //     var cardNumber = $('#cardnumber').val();
-        //     /*console.log(cardNumber);
-        //     console.log($('#cardnumber').val());*/
-        //     if (cardNumber.length != 12) {
-        //         alert('Card number must contain 12 digits!');
-        //     }
-        //     else {
-        //         if (cardNumber[11] == 0){
-        //
-        //             /*Error simulator*/
-        //
-        //             console.log("ERRO! Insufficient balance");
-        //             /*effect*//*audio*/
-        //             $(box).append("<audio id=\"audio\" src=\"audio/error.wav\" autoplay></audio>");
-        //
-        //             $('#hide').hide();
-        //             $('.page-header').html("Fail! <br> Insufficient balance!");
-        //
-        //             effectsHTML =
-        //                     "<mulsemedia-box>\n"+
-        //                     "   <vibration-effect intensity='80.0' startTime='0' endTime='5'></vibration-effect>\n"+
-        //                     "   <temperature-effect intensity='50.0' startTime='0' endTime='5'></temperature-effect>\n"+
-        //                     "</mulsemedia-box>";
-        //
-        //             $(box).append(effectsHTML);
-        //             effects = $('mulsemedia-box').children();
-        //
-        //             effects.each(function () {
-        //                 /* Parametro: lista de tags efeitos com parent mulsemedia-box */
-        //                 runEffect(this);
-        //             });
-        //
-        //             $(box).append("<button type=\"button\" id=\"btn-remove\" class=\"btn btn-custom btn-block\">Try again!</button>");
-        //             $('#btn-remove').click(function () {
-        //                 $(this).remove();
-        //                 $('mulsemedia-box').remove();
-        //                 $('.page-header').html("Your Cart!");
-        //                 $('#hide').show();
-        //             });
-        //         }
-        //         else {
-        //
-        //             /*Success simulator*/
-        //
-        //             console.log("Success!");
-        //
-        //             /*Set and Run effect*/
-        //             $(box).append("<audio id=\"audio\" src=\"audio/aplausos.wav\" autoplay></audio>");
-        //             /*Hide all and complete sale*/
-        //             $('#hide').hide();
-        //             $('.page-header').html("Success!");
-        //
-        //             effectsHTML =
-        //                 "<mulsemedia-box>\n"+
-        //                 "   <light-effect intensity='50.0' startTime='0' endTime='2'></light-effect>\n"+
-        //                 "   <light-effect intensity='50.0' startTime='4' endTime='6'></light-effect>\n"+
-        //                 "   <light-effect  intensity='50.0' startTime='8' endTime='10'></light-effect>\n"+
-        //                 "</mulsemedia-box>";
-        //
-        //             $(box).append(effectsHTML);
-        //             effects = $('mulsemedia-box').children();
-        //
-        //             effects.each(function () {
-        //                 /* Parametro: lista de tags efeitos com parent mulsemedia-box */
-        //                 runEffect(this);
-        //             });
-        //
-        //             $(box).append("<button type=\"button\" id=\"btn-remove\" class=\"btn btn-custom btn-block\">back to home</button>");
-        //             $('#btn-remove').click(function () {
-        //                 location.href = 'index.html';
-        //             });
-        //         }
-        //
-        //     }
-        // });
-
-    //});
 </script>
 </html>
