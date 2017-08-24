@@ -500,6 +500,7 @@
 
                $(conditionalDeal).on("responseDealService", function (event, response) {
                  //console.log(this);
+                 console.log('response = ' + this.op)
                  if (computeCondition(response, parseFloat(this.ifReturn), this.op)) {
                    console.log('Accepted condition!');
                    if (mulsemediaBox.element.onClickStart) { //evitar dois cliques
@@ -598,28 +599,7 @@
                   return null;
               }
             }
-
-
-            //this will start from the first child of the current element's and get all the siblings
-            // function getAllSiblings(elem, filter) {
-            //     var sibs = [];
-            //     var patt = new RegExp("WATER-SPRAY|((VIBRATION|WIND|TEMPERATURE|FOG|LIGHT|SCENT|CONDITIONAL)-EFFECT$)");
-            //     /*Video -> childrens  /  img -> siblings*/
-            //     if (elem.tagName === 'VIDEO' || elem.tagName === 'MULSEMEDIA-BOX'){
-            //         elem = elem.firstChild;
-            //     }
-            //
-            //     if (elem !== null){
-            //         do {
-            //             if (elem.nodeType === 3) continue; // text node
-            //             if ((!filter || filter(elem)) && patt.test(elem.tagName)) sibs.push(elem);
-            //         } while (elem = elem.nextSibling)
-            //     }
-            //     return sibs;
-            // }
-
         }());
-
     });
 
 
