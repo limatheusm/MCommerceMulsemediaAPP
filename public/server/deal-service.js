@@ -8,9 +8,8 @@ io.on('connection', function(socket){
 	console.log('a user connected');
 
 	socket.on('validateCard', function(card){
-    // Avalia se o cartao eh valido
-
-    io.emit('resultValidation', validateCard(card));
+	   // Avalia se o cartao eh valido
+	   io.emit('resultValidation', validateCard(card));
 	});
 
 	socket.on('disconnect', function(){
@@ -33,7 +32,7 @@ http.listen(3030, function(){
 /* Retorna 1 caso seja aceito ou 0 caso seja rejeitado */
 function validateCard(numCard) {
 	if (numCard.length != 12) {
-			return 0;
+			return -1;
 	}
 	return ( (numCard[11] === '0') ? 0 : 1);
 }
