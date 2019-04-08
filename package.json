@@ -1,24 +1,29 @@
 {
-  "name": "MCommerceMulsemediaAPP",
-  "version": "1.0.0",
-  "description": "Aplicativo Multisensorial voltado para o MCommerce.",
-  "main": "web-server.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/matheus-lima/MCommerceMulsemediaAPP.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/matheus-lima/MCommerceMulsemediaAPP/issues"
-  },
-  "homepage": "https://github.com/matheus-lima/MCommerceMulsemediaAPP#readme",
-  "dependencies": {
-    "express": "^4.15.4",
-    "socket.io": "^2.0.3"
-  }
+	"name": "MCommerceMulsemediaAPP",
+	"version": "1.0.0",
+	"description": "Aplicativo Multisensorial voltado para o MCommerce.",
+	"main": "web-server.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"dev": "nodemon web-server.js",
+		"start": "node web-server.js"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/matheus-lima/MCommerceMulsemediaAPP.git"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/matheus-lima/MCommerceMulsemediaAPP/issues"
+	},
+	"homepage": "https://github.com/matheus-lima/MCommerceMulsemediaAPP#readme",
+	"dependencies": {
+		"express": "^4.15.4",
+		"socket.io": "^2.0.3"
+	},
+	"devDependencies": {
+		"nodemon": "^1.18.10"
+	}
 }
